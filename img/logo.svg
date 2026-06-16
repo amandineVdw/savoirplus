@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280 84" width="280" height="84" role="img" aria-label="SavoirPlus">
+  <g transform="rotate(-2.5, 140, 42)">
+    <!-- Fond tampon -->
+    <rect x="4" y="4" width="272" height="76" rx="4"
+          fill="rgba(79,70,229,0.07)"
+          stroke="#4F46E5" stroke-width="3"/>
+    <!-- SAVOIR+ -->
+    <text font-family="'Plus Jakarta Sans', 'Arial Black', Impact, Arial, sans-serif"
+          font-weight="900" font-size="32" dominant-baseline="middle" text-anchor="middle">
+      <tspan x="132" y="38" fill="#4F46E5" letter-spacing="3">SAVOIR</tspan><tspan fill="#F97316" dx="2" dy="-1" font-size="30">+</tspan>
+    </text>
+    <!-- Référence administrative -->
+    <text x="140" y="65"
+          font-family="'Plus Jakarta Sans', Arial, sans-serif"
+          font-weight="600" font-size="9"
+          fill="#9CA3AF" text-anchor="middle" letter-spacing="1.5">
+      FWB · Art. <tspan fill="#DC2626" font-weight="700">60%</tspan> · URGENT
+    </text>
+  </g>
+</svg>

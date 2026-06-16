@@ -1,0 +1,5 @@
+# Claude Code (settings locaux — ne pas versionner)
+.claude/
+
+# Documentation interne — hors scope repo public
+TECHNIQUE.md

@@ -1,0 +1,1941 @@
+/* ============================================================
+   POLICES LOCALES — Variable Fonts (OFL 1.1)
+   3 fichiers couvrent tous les weights (100–900) — pas de static TTF.
+   Chemin relatif au CSS : fonts/ = css/fonts/
+   font-display: fallback — 100ms invisible, puis swap si la police arrive dans les 3s.
+   Moins de CLS que swap (qui swapperait indéfiniment) ; moins de FOIT que block.
+   Plus Jakarta Sans a un <link rel="preload"> dans index.html — arrive quasi toujours dans les 100ms.
+   ============================================================ */
+
+@font-face {
+  font-family: 'Plus Jakarta Sans';
+  src: url('fonts/plus-jakarta-sans.ttf') format('truetype');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: fallback;
+}
+
+@font-face {
+  font-family: 'Inter';
+  src: url('fonts/inter.ttf') format('truetype');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: fallback;
+}
+
+@font-face {
+  font-family: 'JetBrains Mono';
+  src: url('fonts/jetbrains-mono.ttf') format('truetype');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: fallback;
+}
+
+
+/* ============================================================
+   SavoirPlus — style.css · Bootstrap 5.3.3 local + custom
+   Override via :root — zéro !important sauf prefers-reduced-motion
+   Sections : 1.Variables · 2.Titles · 3.Base · 4.Navbar · 5.Boutons
+              6.Hero · 7.Exercices · 8.Ressources · 9.Contact
+              10.Mascotte · 11.Gamification · 12.Footer
+              13.Quiz Engine · 14.Responsive · 15.Utilitaires · 16.Toast bonus
+   ============================================================ */
+
+/* ============================================================
+   1. VARIABLES GLOBALES — :root
+   ============================================================ */
+:root {
+  /* ── Couleurs Bootstrap surchargées ── */
+  --bs-primary:           #4F46E5;          /* Indigo — couleur principale du projet */
+  --bs-primary-rgb:       79, 70, 229;      /* Format RGB pour les rgba() Bootstrap */
+  --bs-secondary:         #F97316;          /* Orange — actions secondaires, accents */
+  --bs-secondary-rgb:     249, 115, 22;
+
+  /* ── Couleurs custom (hors Bootstrap) ── */
+  --color-emerald:        #10B981;          /* Badge Français + états réussite */
+  --color-bg:             #F9FAFB;          /* Fond global — gris très clair, reposant */
+  --color-text:           #1F2937;          /* Texte principal — quasi-noir, pas #000 */
+  --color-border:         rgba(0, 0, 0, 0.06); /* Bordures subtiles, visibles sans agressivité */
+
+  /* ── Alias courts — utilisés dans les composants TDB ──
+     Deux variables distinctes pour éviter l'ambiguïté --color-text / --text-muted.
+     Déclarés ici (fix audit) : certains composants les référencent directement. */
+  --text:                 #1F2937;
+  --text-muted:           #6B7280;
+
+  /* ── Typographie — 3 polices pour 3 usages distincts ──
+     Plus Jakarta Sans : titres, UI, labels — caractère fort et lisible
+     Inter             : corps de texte — excellent rendu écran, neutre
+     JetBrains Mono    : code, compteurs, énoncés — alignement fixe des chiffres */
+  --font-main:            'Plus Jakarta Sans', sans-serif;
+  --font-body:            'Inter', sans-serif;
+  --font-mono:            'JetBrains Mono', monospace;
+
+  /* ── Border radius — cohérence entre composants ── */
+  --radius-card:          16px;   /* Cards exercices + modals */
+  --radius-btn:           4px;    /* Boutons — harmonisé avec le rectangle tampon du logo */
+  --radius-badge:         8px;    /* Badges matière + niveau */
+
+  /* ── Ombres — progressivité selon l'importance du composant ── */
+  --shadow-card:          0 2px 8px rgba(0, 0, 0, 0.06);             /* Card au repos */
+  --shadow-card-hover:    0 8px 24px rgba(79, 70, 229, 0.12);        /* Card survolée */
+  --shadow-modal:         0 10px 40px rgba(79, 70, 229, 0.15);       /* Modal ouverte */
+
+  /* ── Système couleurs par matière — brief 15/06/2026 ── */
+  --maths-bg:      #EEEDFE;
+  --maths-border:  #AFA9EC;
+  --maths-main:    #7F77DD;
+  --maths-dark:    #3C3489;
+
+  --french-bg:     #FFF7ED;
+  --french-border: #FB923C;
+  --french-main:   #F97316;
+  --french-dark:   #C2410C;
+
+  --sci-bg:        #e8f5f0;
+  --sci-border:    #7ec4ad;
+  --sci-main:      #409a79;
+  --sci-dark:      #2d6e56;
+
+  --level-bg:      #F1EFE8;
+  --level-text:    #5F5E5A;
+  --level-border:  #B4B2A9;
+}
+
+
+/* ============================================================
+   2. SECTION TITLES — Identité typographique forte sur les H2
+   Trait coloré via ::after pseudo-element — pas d'élément HTML supplémentaire.
+   var(--bs-primary, #4F46E5) : fallback inline au cas où --bs-primary
+   serait résolu en chaîne vide dans un navigateur ancien.
+   Centré automatiquement quand le parent a .text-center (section Contact).
+   ============================================================ */
+
+.section-title {
+  font-family: var(--font-main);
+  font-size: clamp(1.6rem, 3.5vw, 2.2rem); /* Fluide entre 576px et 1200px */
+  font-weight: 800;
+  letter-spacing: -0.03em; /* Resserre légèrement les grandes fontes — look moderne */
+  color: var(--color-text);
+  position: relative;      /* Contexte pour le ::after absolu */
+  display: inline-block;   /* Le ::after ne s'étire pas sur toute la largeur */
+  margin-bottom: 0.5rem;
+}
+
+/* Trait signature — 2.5rem de large, centré ou aligné gauche selon le contexte */
+.section-title::after {
+  content: '';
+  position: absolute;
+  bottom: -6px;
+  left: 0;
+  width: 2.5rem;
+  height: 3px;
+  background: var(--bs-primary, #4F46E5);
+  border-radius: 2px;
+}
+
+
+/* ============================================================
+   3. BASE — Typographie et fond global
+   ============================================================ */
+
+/* Scroll fluide pour les ancres de la navbar — comportement natif CSS */
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-body);
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  min-width: 320px; /* empêche le layout de casser sous 320px — iPhone SE min */
+}
+
+/* Titres et éléments d'interface : Plus Jakarta Sans — cohérence visuelle forte */
+h1, h2, h3, h4, h5,
+.navbar-brand,
+.btn {
+  font-family: var(--font-main);
+}
+
+
+/* Énoncés avec vrais tableaux Bootstrap (exercices 3 et 8 uniquement)
+   Même fond et padding que .enonce-text — cohérence visuelle garantie */
+.enonce-html {
+  font-size: 0.9rem;
+  line-height: 1.65;
+  background: #F1F5F9;
+  border-radius: 12px;
+  padding: 1.25rem 1.5rem;
+}
+.enonce-html .table {
+  font-size: 0.82rem;
+  background: #fff;
+}
+
+
+/* ============================================================
+   4. NAVBAR
+   ============================================================ */
+
+/* Glassmorphism léger : fond semi-transparent + flou arrière-plan.
+   -webkit- préfixe conservé pour la compatibilité Safari (iOS 15 et antérieurs).
+   backdrop-filter ne fonctionne qu'avec un fond < 100% opaque.
+   Pas de border-bottom — le backdrop-filter suffit à délimiter visuellement la navbar. */
+.navbar-savoirplus {
+  background: rgba(249, 250, 251, 0.92);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+/* ── Point 1 — Hamburger mobile : suppression border/background Bootstrap ──
+   .navbar-toggler-icon : remplacé par bi-list (#1F2937) via SVG inline data-URI.
+   Bootstrap Icons CDN non requis — l'icône est encodée directement. */
+.navbar-toggler {
+  border: none;
+  padding: 8px;
+  background: transparent;
+}
+.navbar-toggler:focus {
+  box-shadow: none;
+  outline: none;
+}
+.navbar-toggler-icon {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='30' height='30' viewBox='0 0 16 16'%3E%3Crect x='2' y='3.1' width='12' height='1.8' rx='0.9' fill='%23F97316'/%3E%3Crect x='2' y='7.1' width='12' height='1.8' rx='0.9' fill='%23F97316'/%3E%3Crect x='2' y='11.1' width='12' height='1.8' rx='0.9' fill='%23F97316'/%3E%3C/svg%3E");
+  width: 30px;
+  height: 30px;
+}
+
+/* ── Point 3 — Supprimer underline + couleur explicite (override Bootstrap var) ── */
+.navbar-nav .nav-link,
+.dropdown-item { text-decoration: none; }
+.navbar-nav .nav-link { color: #374151; }
+
+/* ── Point 4 — Liens desktop : état actif indigo au scroll ──
+   JS (initNavActif) ajoute .active via IntersectionObserver sur les sections. */
+.navbar-nav .nav-link.active { color: #4F46E5; font-weight: 600; }
+
+/* ── Point 5 — Dropdown : couleur matière par item ── */
+.dropdown-item            { font-weight: 500; padding: 8px 16px; }
+.dropdown-item.maths-link    { color: #7F77DD; }
+.dropdown-item.francais-link { color: var(--french-main); }
+.dropdown-item.sciences-link { color: #639922; }
+.dropdown-item.maths-link:hover    { background: var(--maths-bg); }
+.dropdown-item.francais-link:hover { background: var(--french-bg); }
+.dropdown-item.sciences-link:hover { background: var(--sci-bg); }
+
+/* ── Point 6 — Menu mobile : structure propre ──
+   Scoped à max-width 991px pour ne pas affecter le desktop. */
+@media (max-width: 991px) {
+  .navbar-collapse {
+    background: #fff;
+    padding: 0 1rem 1rem;
+    border-top: 0.5px solid rgba(0, 0, 0, 0.06);
+  }
+  .navbar-nav .nav-item {
+    border-bottom: 0.5px solid rgba(0, 0, 0, 0.06);
+  }
+  .navbar-nav .nav-item:last-child { border-bottom: none; }
+  .navbar-nav .nav-link {
+    padding: 14px 0;
+    font-size: 1rem;
+    font-weight: 500;
+    color: #1F2937;
+  }
+
+  /* ── Point 7 — Bouton Je révise mobile : full width ── */
+  .btn-je-revise {
+    width: 100%;
+    text-align: center;
+    margin-top: 12px;
+  }
+}
+
+/* ── Point 8 — GIF hero : suppression tout border/stroke résiduel ── */
+.hero-illus {
+  border: none;
+  outline: none;
+  box-shadow: none;
+}
+
+/* ── Logo tampon administratif (Direction 3) ──
+   Langage visuel cohérent avec La Circulaire : tampon, rotation, marque administrative.
+   Flex colonne pour empiler le nom et la référence FWB. */
+.logo-tampon {
+  display: flex;
+  flex-direction: column;
+  line-height: 1;
+  text-decoration: none;
+  gap: 4px;
+}
+
+/* Cadre tampon :
+   - border indigo 3px — marqué, affirmé
+   - rotate(-2.5deg) — imparfait assumé, comme un vrai tampon pressé à la main
+   - cubic-bezier spring : redressement au hover avec rebond (pas de linéaire fade)
+   - ::before fond teinté à 7% d'opacité — donne l'impression que le tampon a de l'encre */
+.logo-stamp-wrap {
+  display: inline-flex;
+  align-items: center;
+  border: 3px solid var(--bs-primary);
+  border-radius: 3px;       /* Légèrement arrondi, pas rectangle parfait — "usé" */
+  padding: 4px 10px 4px 8px;
+  transform: rotate(-2.5deg);
+  position: relative;       /* Contexte pour le ::before */
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1); /* Spring élastique */
+}
+
+/* Fond teinté intérieur — pseudo-élément pour éviter d'opacifier le texte
+   (opacity sur le parent affecterait les enfants — solution classique) */
+.logo-stamp-wrap::before {
+  content: '';
+  position: absolute;
+  inset: 0;                 /* Couvre exactement le parent */
+  background: var(--bs-primary);
+  opacity: 0.07;
+  border-radius: 1px;
+}
+
+/* Hover : redressement presque complet (-0.5deg) — le tampon se "pose" */
+.logo-tampon:hover .logo-stamp-wrap,
+.footer-logo:hover .logo-stamp-wrap {
+  transform: rotate(-0.5deg);
+}
+
+/* Nom SAVOIR+ — caps, poids 900, tracking large pour l'esthétique tampon officiel */
+.logo-stamp-name {
+  font-family: var(--font-main);
+  font-size: 1.25rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--bs-primary);
+  line-height: 1;
+}
+
+/* Le + en orange — décalé avec rotate(3deg), cohérence avec le tampon URGENT diagonal */
+.logo-stamp-plus {
+  color: var(--bs-secondary);
+  display: inline-block;
+  transform: rotate(3deg);
+  margin-left: 2px;
+}
+
+/* Référence administrative — visible uniquement desktop (d-none d-lg-block en HTML).
+   Micro-typographie : 0.54rem, gris, tracking large — imitation note administrative */
+.logo-stamp-ref {
+  font-size: 0.54rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #9CA3AF;
+  padding-left: 3px;
+}
+
+/* Code 60% en rouge — tension narrative : l'enjeu de l'examen visible dans le logo */
+.logo-stamp-ref-code {
+  color: #EF4444;
+  font-weight: 700;
+}
+
+/* ── Variante footer — bordure et texte blancs sur fond sombre ── */
+.logo-stamp-dark {
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+.logo-stamp-dark::before {
+  background: #fff;
+  opacity: 0.06;
+}
+
+.logo-stamp-name-dark {
+  color: #fff;
+}
+
+/* ── Footer logo + légale ── */
+.footer-logo {
+  display: flex;
+  justify-content: center;
+}
+
+.footer-legal {
+  font-size: 0.8rem;
+  color: #6B7280;
+  line-height: 1.7;
+}
+
+.footer-decret {
+  display: block;
+  margin-top: 0.25rem;
+  font-style: italic;
+  color: #4B5563;
+}
+
+.footer-link {
+  color: #9CA3AF;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.footer-link:hover {
+  color: #fff;
+}
+
+/* Liens de navigation — transition couleur douce vers indigo au hover */
+.nav-link {
+  font-weight: 500;
+  color: var(--color-text);
+  transition: color 0.15s ease;
+}
+
+.nav-link:hover,
+.nav-link:focus {
+  color: var(--bs-primary);
+}
+
+
+/* ============================================================
+   5. BOUTONS — Override Bootstrap via ses variables locales (.btn-*)
+   On ne redéfinit pas la couleur directement — on écrase les custom properties
+   que Bootstrap lit lui-même (--bs-btn-bg, --bs-btn-hover-bg…).
+   Résultat : toute l'infrastructure Bootstrap (disabled, focus-ring…) fonctionne.
+   ============================================================ */
+
+.btn {
+  border-radius: var(--radius-btn);  /* 4px — harmonisé avec le tampon */
+  font-weight: 600;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+/* Bouton primary — palette indigo complète (normal / hover / active / focus-ring) */
+.btn-primary {
+  --bs-btn-color:               #fff;
+  --bs-btn-bg:                  #4F46E5;
+  --bs-btn-border-color:        #4F46E5;
+  --bs-btn-hover-color:         #fff;
+  --bs-btn-hover-bg:            #4338CA;     /* Indigo 700 */
+  --bs-btn-hover-border-color:  #4338CA;
+  --bs-btn-active-bg:           #3730A3;     /* Indigo 800 */
+  --bs-btn-focus-shadow-rgb:    79, 70, 229;
+}
+
+/* Élévation au hover — retour 3D subtil + halo coloré */
+.btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(79, 70, 229, 0.35);
+}
+
+
+/* ============================================================
+   6. SECTION HERO — 3 zones : gauche texte / droite visuelle / xp-strip
+
+   Structure Bootstrap :
+     .section-hero
+       .container-fluid.px-0
+         .row.g-0.align-items-stretch
+           .col-lg-6.hero-left     ← texte + CTA + stats
+           .col-lg-6.hero-right    ← GIF + mascotte chip
+       #tableau-de-bord.xp-strip   ← full-width, hors de la row
+
+   hero-right z-index layers :
+     z-1  : .hero-illus (GIF illustration principale)
+     z-3  : .hero-right::before (watermark URGENT — au-dessus du GIF, décoratif)
+     z-2  : .mascotte-chip (puce interactive — en dessous du watermark visuellement
+             mais pointer-events fonctionnent car le ::before a pointer-events:none)
+   ============================================================ */
+
+.section-hero {
+  padding: 0;      /* Supprime le padding-section par défaut — la hero pleine hauteur */
+  background: #ffffff;
+}
+
+/* ── Colonne gauche — centrage vertical flex ── */
+.hero-left {
+  display: flex;
+  align-items: center; /* Centre verticalement l'inner par rapport à la hauteur de la row */
+}
+
+/* Inner : colonne flex avec gap — pas de margin individuels sur les enfants */
+/* Le container Bootstrap gère les marges latérales — padding-left minimal ici */
+.hero-left-inner {
+  padding: 80px 32px 80px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  max-width: 560px; /* Limite la largeur de la colonne de texte pour la lisibilité */
+}
+
+/* Desktop large : plus d'air vertical */
+@media (min-width: 992px) {
+  .hero-left-inner {
+    padding: 96px 48px 96px 0;
+  }
+}
+
+/* Mobile : padding réduit, max-width levé */
+@media (max-width: 991px) {
+  .hero-left-inner {
+    padding: 48px 0;
+    max-width: 100%;
+  }
+}
+
+/* H1 fluide : clamp(min, préféré, max) — augmente entre 576px et 1440px sans media query */
+.hero-h1 {
+  font-family: var(--font-main);
+  font-size: clamp(2rem, 4vw, 2.8rem);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.1; /* Serré — look éditorial sur les grands titres */
+  color: var(--color-text);
+  margin: 0;
+}
+
+.hero-sub {
+  font-size: 1.05rem;
+  line-height: 1.7;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+/* Ligne secondaire "Gratuit. Sans circulaire…" — plus petite, muted, séparée */
+.hero-sub-tagline {
+  font-size: 0.875rem;
+  color: #9CA3AF;
+  margin-top: 6px;
+}
+
+/* Groupe CTA : colonne flex — le micro-cta sous le bouton principal */
+.hero-cta-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.micro-cta {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  font-style: italic;
+  margin: 0;
+}
+
+/* 60% en orange dans le micro-cta — cohérence avec la ref dans le logo */
+.text-orange {
+  color: #F97316;
+  font-style: normal;
+  font-weight: 600;
+}
+
+/* Stats badges : 3 pilules avec dot coloré selon la matière
+   → 9 exercices (indigo) / 3 matières (vert) / 0 alert() (orange) */
+.hero-stats {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap; /* Passe à la ligne sur mobile sans overflow */
+}
+
+.stat-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: white;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 20px;       /* Pilule — différent du --radius-btn rectangulaire */
+  padding: 5px 12px;
+  font-family: var(--font-main);
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #374151;
+}
+
+/* Dot coloré — 6px, rond parfait (border-radius: 50%) */
+.stat-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0; /* Ne se compresse pas si le texte est long */
+}
+
+.stat-indigo .stat-dot { background: #4F46E5; }
+.stat-green  .stat-dot { background: #10B981; }
+.stat-orange .stat-dot { background: #F97316; }
+
+/* ── Colonne droite — zone visuelle blanche avec décoration ──
+   border-radius 0 0 0 48px : arrondi bas-gauche uniquement — asymétrie intentionnelle
+   overflow: hidden : masque le GIF et la chip qui dépasseraient sinon
+   padding-bottom 80px : espace pour la mascotte chip absolute bottom:24px */
+.hero-right {
+  position: relative;
+  background: #ffffff;
+  border-radius: 0 0 0 48px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 480px;
+  padding: 40px 40px 80px 40px; /* bottom 80px = place pour mascotte-chip en absolute */
+}
+
+/* Filigrane URGENT — CSS pur, zéro dépendance, zéro image.
+   Cohérence narrative : le mot URGENT apparaît dans le logo, sur La Circulaire mascotte,
+   et ici en filigrane — boucle sémantique complète défendable à l'oral.
+
+   pointer-events: none : le filigrane est 100% décoratif — aucune interaction
+   z-index 3            : au-dessus du GIF (z-1) et de la chip (z-2), mais pointer-events:none
+                          donc la chip reste cliquable */
+.hero-right::before {
+  content: 'URGENT';
+  position: absolute;
+  top: 32px;
+  right: 16px;
+  font-family: var(--font-main);
+  font-size: 5rem;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  color: #EF4444;
+  opacity: 0.08;            /* Très subtil — décor, pas distraction */
+  transform: rotate(-15deg);
+  pointer-events: none;     /* Décoratif pur — transparent aux clics */
+  z-index: 3;
+}
+
+/* Illustration hero — GIF Motion1 ou WebP fallback
+   max-width 460px : ne prend pas toute la colonne, laisse de la respiration
+   z-index 1 : en dessous du watermark (z-3) et de la chip (z-2) */
+.hero-illus {
+  width: 100%;
+  max-width: 460px;
+  height: auto;
+  object-fit: contain;
+  position: relative;
+  z-index: 1;
+}
+
+/* ── Mascotte chip — icône gauche + 3 rangées texte droite ── */
+.mascotte-chip {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 14px;
+  padding: 16px;
+  border-radius: 12px;
+  background: var(--bs-light);
+  border: 0.5px solid rgba(0, 0, 0, 0.08);
+  box-shadow: 0 2px 12px rgba(79, 70, 229, 0.12);
+  box-sizing: border-box;
+  transition: box-shadow 0.2s ease;
+}
+
+.mascotte-chip:hover {
+  box-shadow: 0 4px 20px rgba(79, 70, 229, 0.18);
+}
+
+/* Avatar : fond indigo clair, border-radius 8px */
+.mascotte-avatar {
+  width: 88px;
+  height: 88px;
+  background: #EEF2FF;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.mascotte-text {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  line-height: 1.3;
+  gap: 2px;
+  min-width: 0;
+}
+
+.mascotte-status-sub {
+  font-size: 0.875rem;
+  color: var(--text-muted);
+}
+
+.mascotte-name {
+  font-family: var(--font-main);
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.mascotte-status {
+  font-size: 0.875rem;
+  color: var(--text-muted);
+}
+
+/* ── Gamification row — grid 2/3 + 1/3 desktop / 1 colonne mobile ── */
+.gamification-row {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 16px;
+  align-items: stretch;
+  margin-top: 4px;
+}
+
+.gamification-xp {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.gamification-mascotte {
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+  background: transparent;
+  border-radius: 0;
+  padding: 0;
+  min-height: unset;
+  height: unset;
+}
+
+.gamification-mascotte img {
+  width: 100%;
+  max-width: 100px;
+  height: auto;
+  object-fit: contain;
+}
+
+@media (max-width: 768px) {
+  .gamification-row {
+    grid-template-columns: 1fr;
+  }
+  .gamification-mascotte {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 0;
+    justify-content: flex-start;
+    gap: 12px;
+    flex-direction: row;
+  }
+  .gamification-mascotte img {
+    width: 48px;
+    height: 48px;
+    flex-shrink: 0;
+  }
+  .mascotte-chip {
+    width: 100%;
+    box-sizing: border-box;
+  }
+}
+
+/* Card gamification — prend la largeur du container */
+.xp-strip-inner {
+  padding: 16px 20px;
+  background: #F5F3FF;
+  border: 1px solid #C7D2FE;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+@media (max-width: 768px) {
+  .xp-strip-inner { padding: 12px 16px; }
+  .container,
+  .container-fluid {
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+  .lead {
+    font-size: 0.9375rem;
+  }
+}
+
+
+/* ============================================================
+   7. SECTION EXERCICES
+   ============================================================ */
+
+.section-exercices {
+  background: #fff;
+  padding: 80px 0;
+}
+
+/* ── Boutons filtre par matière ──
+   Non-Bootstrap : custom buttons pour contrôler précisément le style actif/hover.
+   .actif géré par app.js (classList.add/remove). */
+.btn-filtre {
+  border-radius: var(--radius-btn); /* Cohérent avec les boutons du projet */
+  border: 1.5px solid #4F46E5;
+  color: #4F46E5;
+  background: transparent;
+  font-weight: 600;
+  font-size: 0.875rem;
+  padding: 0.4rem 1.1rem;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.btn-filtre:hover,
+.btn-filtre.actif {
+  background: #4F46E5;
+  color: #fff;
+  border-color: #4F46E5;
+}
+
+/* ── Cards exercices ──
+   cubic-bezier(0.34, 1.56, 0.64, 1) = spring physics :
+     0.34 tension, 1.56 dépassement positif → rebond élastique au hover
+   will-change: transform : hint GPU pour l'animation translateY */
+.card-exercice {
+  border-radius: var(--radius-card);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-card);
+  transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1),
+              box-shadow 0.22s ease;
+  height: 100%;
+  will-change: transform;
+}
+
+.card-exercice:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 12px 32px rgba(79, 70, 229, 0.14);
+}
+
+/* Entrée échelonnée des cards au chargement.
+   opacity: 0 initial — les cards sont invisibles jusqu'à l'animation.
+   animation-delay injecté par app.js (65ms × index) pour l'effet cascade.
+   cubic-bezier(0.22, 1, 0.36, 1) = ease-out rapide — léger sans être brutal */
+.col-card {
+  opacity: 0;
+  animation: card-in 0.38s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+@keyframes card-in {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Cadre Polaroid ──
+   Padding bas > padding haut (28px vs 10px) : imite le bas large d'une photo Polaroid.
+   border-radius haut seulement — la card continue en dessous (pas de doublage d'arrondi).
+   inset shadow subtil : délimite la zone image sans border visible. */
+.polaroid-frame {
+  background: #fff;
+  padding: 10px 10px 28px 10px;
+  border-radius: var(--radius-card) var(--radius-card) 0 0;
+  box-shadow: inset 0 -1px 0 rgba(0, 0, 0, 0.06);
+}
+
+/* ── Illustration Polaroid ──
+   aspect-ratio: 16/9 : ratio fixe indépendamment de la taille de l'image source.
+   object-fit: cover : l'image remplit le ratio sans distorsion (crop centré).
+   object-position: center center : ancrage au centre (pas top, qui couperait les visages).
+   filter: saturate(0.65) brightness(1.02) : désaturation éditoriale — illustrations
+     moins criardes, cohérence visuelle même si les 3 images ont des palettes différentes. */
+.card-illustration {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  object-position: center center;
+  border-radius: 4px;
+  display: block;
+  filter: saturate(0.65) brightness(1.02);
+}
+
+/* Illustration dans le header de modal — taille fixe 64px, contenu (pas cover)
+   pour ne pas cropper le personnage qui est souvent au centre */
+.modal-illus {
+  width: 64px;
+  height: 64px;
+  object-fit: contain;
+  flex-shrink: 0;
+  border-radius: 8px;
+  background: var(--color-bg); /* Fond neutre si l'image a de la transparence */
+}
+
+/* Card body en flex colonne : flex-grow sur .card-text pousse le bouton en bas */
+.card-exercice .card-body {
+  display: flex;
+  flex-direction: column;
+  padding: 1.5rem;
+}
+
+.card-exercice .card-title {
+  font-size: 1rem;
+  font-weight: 700;
+  margin-top: 0.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.card-exercice .card-text {
+  color: #4B5563;
+  font-size: 0.875rem;
+  flex-grow: 1;         /* Pousse le bouton Commencer en bas de la card */
+  margin-bottom: 1.25rem;
+}
+
+
+/* ── Badges matière — système couleurs par variable (brief 15/06/2026) ── */
+.badge-maths {
+  background: var(--maths-bg);
+  color: var(--maths-dark);
+  border: 0.5px solid var(--maths-border);
+  font-weight: 600;
+  font-size: 0.75rem;
+  border-radius: var(--radius-badge);
+  padding: 0.3em 0.7em;
+}
+
+.badge-francais {
+  background: var(--french-bg);
+  color: var(--french-dark);
+  border: 0.5px solid var(--french-border);
+  font-weight: 600;
+  font-size: 0.75rem;
+  border-radius: var(--radius-badge);
+  padding: 0.3em 0.7em;
+}
+
+.badge-sciences {
+  background: var(--sci-bg);
+  color: var(--sci-dark);
+  border: 0.5px solid var(--sci-border);
+  font-weight: 600;
+  font-size: 0.75rem;
+  border-radius: var(--radius-badge);
+  padding: 0.3em 0.7em;
+}
+
+/* Badge niveau — gris neutre */
+.badge-niveau {
+  background: var(--level-bg);
+  color: var(--level-text);
+  border: 0.5px solid var(--level-border);
+  font-size: 0.7rem;
+  font-weight: 600;
+  border-radius: var(--radius-badge);
+  padding: 0.25em 0.6em;
+}
+
+/* ── Stripe 4px en tête de card — identifiant visuel matière ── */
+.card-stripe { height: 4px; border-radius: 0; margin: 0; }
+.stripe-maths    { background: var(--maths-main); }
+.stripe-francais { background: var(--french-main); }
+.stripe-sciences { background: var(--sci-main); }
+
+/* ── Boutons Commencer colorés par matière ── */
+.btn-maths,
+.btn-francais,
+.btn-sciences {
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-btn);
+  font-weight: 600;
+  font-size: 0.8rem;
+  padding: 0.4rem 0.85rem;
+  transition: background 0.2s ease, transform 0.1s ease;
+  cursor: pointer;
+  align-self: flex-start;
+  margin-top: auto;
+}
+.btn-maths    { background: var(--maths-main); }
+.btn-francais { background: var(--french-dark); }
+.btn-sciences { background: var(--sci-dark); } /* #2d6e56 — contraste blanc 5.8:1 ✓ WCAG AA */
+.btn-maths:hover    { background: var(--maths-dark); }
+.btn-francais:hover { background: var(--french-dark); }
+.btn-sciences:hover { background: var(--sci-dark); }
+.btn-maths:active,
+.btn-francais:active,
+.btn-sciences:active { transform: scale(0.97); }
+
+
+/* ============================================================
+   MODALS Bootstrap
+   ============================================================ */
+
+/* border-radius 20px sur le contenu — plus doux que le défaut Bootstrap */
+.modal-content {
+  border-radius: 20px;
+  border: none;
+  box-shadow: var(--shadow-modal);
+}
+
+/* Header en flex avec gap — les éléments (illus, badges+titre, btn-close) s'espacent naturellement.
+   position: relative + overflow: hidden : contexte pour le fond glassmorphism ::absolute */
+.modal-header {
+  border-bottom: 1px solid var(--color-border);
+  padding: 1.25rem 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Illustration en fond flou (glassmorphism sélectif) :
+   - inset: 0 : couvre tout le header
+   - background-image injecté inline par app.js (genererModals)
+   - opacity 0.07 : imperceptible mais présent — donne une "couleur" à chaque modal
+   - blur(8px) + scale(1.1) : l'image dépasse le bord pour masquer l'effet de bord du blur
+   - z-index 0 : sous tous les enfants directs */
+.modal-header-bg {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  opacity: 0.07;
+  filter: blur(8px);
+  transform: scale(1.1);
+  z-index: 0;
+}
+
+/* Tous les enfants directs du header passent devant le fond glassmorphism */
+.modal-header > * {
+  position: relative;
+  z-index: 1;
+}
+
+.modal-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.modal-intro {
+  font-style: italic;
+  color: #6B7280;
+  font-size: 0.875rem;
+  margin-bottom: 1rem;
+}
+
+.modal-footer {
+  border-top: 1px solid var(--color-border);
+}
+
+
+/* ============================================================
+   8. SECTION RESSOURCES
+   ============================================================ */
+
+.section-ressources {
+  background: var(--color-bg);
+  padding: 80px 0;
+}
+
+/* ── Accordéon Bootstrap —
+   overflow: hidden sur .accordion-item : garantit que border-radius s'applique
+   aux boutons accordion-button (qui est un enfant, pas le parent). */
+.accordion-item {
+  border: none;
+  border-radius: 12px;
+  margin-bottom: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  overflow: hidden;
+}
+
+.accordion-button {
+  font-family: var(--font-main);
+  font-weight: 600;
+  font-size: 0.95rem;
+  background: #fff;
+  color: var(--color-text);
+}
+
+/* Accordéon ouvert — fond indigo clair pour signaler l'état actif */
+.accordion-button:not(.collapsed) {
+  background: #EEF2FF;
+  color: #4338CA;
+  box-shadow: none; /* Supprime le box-shadow Bootstrap par défaut sur :not(.collapsed) */
+}
+
+.accordion-button:focus {
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2);
+}
+
+/* Hover accordéon fermé — signal de cliquabilité */
+.accordion-button.collapsed:hover {
+  background: #F5F3FF;
+  color: #4F46E5;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+/* Flèche accordéon avec spring au lieu du linéaire Bootstrap par défaut */
+.accordion-button::after {
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* ── Fiches de révision rapide ── */
+.card-fiche {
+  border-radius: var(--radius-card);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-card);
+}
+
+.card-fiche .card-body {
+  padding: 1.5rem 1.75rem;
+}
+
+/* ── Citation inspirante ──
+   border-left coloré : identifiant visuel "citation", différent de blockquote par défaut
+   border-radius 0 12px 12px 0 : arrondi à droite seulement — côté gauche = bord droit */
+.citation-bloc {
+  border-left: 4px solid var(--bs-primary);
+  padding: 1.5rem 2rem;
+  background: #EEF2FF;
+  border-radius: 0 12px 12px 0;
+  font-style: italic;
+  color: #374151;
+}
+
+.citation-bloc p {
+  margin-bottom: 0.5rem;
+  font-size: 1rem;
+}
+
+.citation-bloc footer {
+  font-size: 0.82rem;
+  color: #6B7280;
+  font-style: normal;
+}
+
+
+/* ============================================================
+   9. SECTION CONTACT — Formulaire et validation
+   ============================================================ */
+
+.section-contact {
+  background: #fff;
+  padding: 80px 0;
+}
+
+/* Largeur max desktop — aligne sur la vidéo YouTube (video-wrap = 560px) */
+#contact .container { max-width: 560px; }
+
+/* Sous-titre — secondaire, pas un lead géant */
+.contact-subtitle {
+  font-size: 1rem;
+  color: #6B7280;
+  line-height: 1.6;
+}
+
+/* Card formulaire — délimite visuellement la zone de saisie */
+.contact-form-card {
+  background: #fff;
+  border: 0.5px solid rgba(0, 0, 0, 0.08);
+  border-radius: 16px;
+  padding: 2rem;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+}
+
+/* Checkbox RGPD — alignement flex, reset du float/margin Bootstrap */
+.section-contact .form-check {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding-left: 0;
+}
+.section-contact .form-check-input {
+  float: none;        /* annule le float Bootstrap */
+  margin-left: 0;     /* annule le -1.5em Bootstrap qui décale à gauche */
+  margin-top: 2px;
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+  border: 2px solid #6366F1;
+  border-radius: 4px;
+  accent-color: #4F46E5;
+  cursor: pointer;
+}
+.section-contact .form-check-label {
+  font-size: .875rem;
+  color: #6B7280;
+  line-height: 1.5;
+}
+
+/* Bouton Envoyer */
+.btn-contact {
+  width: 100%;
+  padding: 14px;
+  font-size: 1rem;
+  font-weight: 600;
+  border-radius: 10px;
+  background: #4F46E5;
+  color: #fff;
+  border: none;
+  transition: background .2s ease, transform .1s ease;
+  cursor: pointer;
+}
+.btn-contact:hover  { background: #3730A3; color: #fff; }
+.btn-contact:active { transform: scale(.98); }
+
+/* Form controls Bootstrap — override rayon + bordure + fond */
+.form-control {
+  border-radius: 10px;
+  border: 1px solid #E5E7EB;
+  background: #F9FAFB;
+  font-family: var(--font-body);
+  transition: border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+}
+
+.form-control:focus {
+  background: #fff;
+  border-color: #4F46E5;
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+}
+
+/* Placeholder — même couleur et taille que label RGPD (.875rem / #6B7280) */
+::placeholder { color: #6B7280; opacity: 1; font-size: .875rem; }
+::-webkit-input-placeholder { color: #6B7280; font-size: .875rem; }
+
+/* Champ en état d'erreur — bordure rouge, ring rouge au focus */
+.champ-error {
+  border-color: #DC2626;
+}
+
+.champ-error:focus {
+  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.15);
+}
+
+/* Message d'erreur — display:none par défaut, display:block quand .visible ajouté par JS.
+   Plus accessible que visibility:hidden (ne prend pas d'espace) et que opacity:0 (masqué aux AT).
+   role="alert" dans le HTML déclenche l'annonce screen reader à l'apparition. */
+.feedback-error {
+  color: #DC2626;
+  font-size: 0.82rem;
+  margin-top: 4px;
+  display: none;
+}
+
+.feedback-error.visible {
+  display: block;
+}
+
+
+/* ============================================================
+   10. MASCOTTE CHIP — Système d'évolution en 5 niveaux
+   Technique : data-niveau sur #mascotte-widget (.mascotte-chip)
+   permet au CSS de cibler chaque état sans toucher à classList JS.
+   app.js écrit uniquement widget.dataset.niveau = palier.
+
+   Couches visuelles par niveau :
+     box-shadow coloré sur .mascotte-chip → halo ambiant
+     filter sur .mascotte-avatar img → effet sur l'image de la mascotte
+     border-color sur .mascotte-chip → contour teinté
+
+   Niveau 5 — Métamorphose :
+     hue-rotate(120deg) : l'indigo de La Circulaire (teinte ~240°) tourne vers le vert (~120°)
+     → La Circulaire "devient une Fiche de Cours" visuellement.
+     Zéro image supplémentaire — pure CSS filter chain.
+   ============================================================ */
+
+/* Transitions partagées — changement de niveau fluide (pas instantané) */
+.mascotte-chip {
+  transition: box-shadow 0.5s ease, border-color 0.5s ease;
+}
+
+.mascotte-avatar img {
+  transition: filter 0.5s ease, transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.mascotte-status {
+  transition: color 0.3s ease;
+}
+
+/* Niveau 0 — Panique administrative totale
+   Halo rouge + animation tilt infinie : la chip tremble d'anxiété */
+[data-niveau="0"] .mascotte-chip {
+  box-shadow: 0 2px 12px rgba(239, 68, 68, 0.25);
+  animation: chip-tilt 2s ease-in-out infinite;
+}
+[data-niveau="0"] .mascotte-avatar img {
+  filter: drop-shadow(0 0 4px rgba(239, 68, 68, 0.5));
+}
+
+/* Niveau 1 — Suspicion : retour à la neutralité, léger halo indigo */
+[data-niveau="1"] .mascotte-chip {
+  box-shadow: 0 2px 8px rgba(79, 70, 229, 0.1);
+}
+[data-niveau="1"] .mascotte-avatar img { filter: none; }
+
+/* Niveau 2 — Déni : halo orange apparaît */
+[data-niveau="2"] .mascotte-chip {
+  box-shadow: 0 2px 12px rgba(249, 115, 22, 0.25);
+}
+[data-niveau="2"] .mascotte-avatar img {
+  filter: drop-shadow(0 0 4px rgba(249, 115, 22, 0.45));
+}
+
+/* Niveau 3 — Marchandage : orange s'intensifie, border coloré visible */
+[data-niveau="3"] .mascotte-chip {
+  box-shadow: 0 4px 16px rgba(249, 115, 22, 0.35);
+  border-color: rgba(249, 115, 22, 0.2);
+}
+[data-niveau="3"] .mascotte-avatar img {
+  filter: drop-shadow(0 0 6px rgba(249, 115, 22, 0.6));
+}
+
+/* Niveau 4 — Acceptation : passage au vert émeraude — La Circulaire se rend */
+[data-niveau="4"] .mascotte-chip {
+  box-shadow: 0 4px 16px rgba(16, 185, 129, 0.3);
+  border-color: rgba(16, 185, 129, 0.2);
+}
+[data-niveau="4"] .mascotte-avatar img {
+  filter: drop-shadow(0 0 6px rgba(16, 185, 129, 0.5)) brightness(1.05);
+}
+
+/* Niveau 5 — Métamorphose : La Circulaire devient Fiche de Cours
+   - background #F0FDF4 : fond vert très clair (teinté)
+   - hue-rotate(120deg) : décale la teinte de l'image de 120° (indigo → vert)
+   - chip-victory animation : bounce de victoire au moment du déverrouillage */
+[data-niveau="5"] .mascotte-chip {
+  box-shadow: 0 4px 20px rgba(16, 185, 129, 0.45);
+  border-color: rgba(16, 185, 129, 0.35);
+  background: #F0FDF4;
+  animation: chip-victory 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+[data-niveau="5"] .mascotte-avatar img {
+  filter: hue-rotate(120deg) drop-shadow(0 0 8px rgba(16, 185, 129, 0.7)) brightness(1.1);
+}
+[data-niveau="5"] .mascotte-name  { color: #065F46; }
+[data-niveau="5"] .mascotte-status { color: #065F46; }
+
+/* Animation tilt — balancement doux niveau 0 (La Circulaire est anxieuse) */
+@keyframes chip-tilt {
+  0%, 100% { transform: rotate(-1deg) translateY(0); }
+  50%       { transform: rotate(1deg) translateY(-2px); }
+}
+
+/* Animation victoire — bounce spring niveau 5
+   40% : dépassement positif (scale 1.08) → 70% : rebond négatif → 100% : repos */
+@keyframes chip-victory {
+  0%   { transform: scale(1); }
+  40%  { transform: scale(1.08) rotate(-2deg); }
+  70%  { transform: scale(0.97) rotate(1deg); }
+  100% { transform: scale(1) rotate(0deg); }
+}
+
+
+/* ============================================================
+   11. GAMIFICATION — Tableau de bord XP
+   ============================================================ */
+
+/* Carte TDB : glassmorphism léger — fond semi-transparent + border colorée */
+.tdb-card {
+  background: rgba(255, 255, 255, 0.7);
+  border: 1px solid rgba(79, 70, 229, 0.15);
+  border-radius: 14px;
+  padding: 0.9rem 1rem;
+  backdrop-filter: blur(6px);
+}
+
+/* Ligne supérieure : niveau emoji + XP badge côte à côte */
+.tdb-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.4rem;
+}
+
+.tdb-niveau {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+/* Badge XP — élément central, taille assumée */
+.tdb-xp-badge {
+  font-size: 1.125rem;
+  font-weight: 700;
+  background: #EEF2FF;
+  color: #4F46E5;
+  padding: 0.2rem 0.65rem;
+  border-radius: 50px;
+}
+
+/* Track de la barre XP — plus haute que la barre de progression (12 vs 6px) */
+.tdb-xp-track {
+  height: 12px;
+  border-radius: 50px;
+  background: #DDD6FE;
+  overflow: hidden;
+  margin-bottom: 0.55rem;
+}
+
+/* Fill XP : gradient indigo → violet.
+   cubic-bezier spring sur width : la barre avance avec un rebond au level-up.
+   will-change: width, background-color : hint GPU pour les transitions fréquentes. */
+.tdb-xp-fill {
+  height: 100%;
+  border-radius: 50px;
+  background: linear-gradient(90deg, #4F46E5, #7C3AED);
+  transition: width 0.9s cubic-bezier(0.34, 1.56, 0.64, 1);
+  will-change: width;
+}
+
+/* Stats par matière : flex wrap pour tenir sur mobile */
+.tdb-stats {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: .875rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  margin-bottom: 0.65rem;
+  flex-wrap: wrap;
+}
+
+.tdb-stat-total { font-weight: 600; color: var(--text); }
+.tdb-stat-sep   { opacity: 0.35; }  /* Séparateur | atténué */
+.tdb-stat-mat   { font-weight: 500; display: inline-flex; align-items: center; gap: 5px; }
+
+/* Stripe couleur matière — remplace les emojis, cohérent avec les dropdown-item */
+.mat-stripe {
+  display: inline-block;
+  width: 3px;
+  height: 14px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+.tdb-stat-maths   .mat-stripe { background: #7F77DD; }
+.tdb-stat-francais .mat-stripe { background: var(--french-main); }
+.tdb-stat-sciences .mat-stripe { background: #639922; }
+
+/* ── Achievements ──
+   Masqués du hero — les badges restent dans le DOM pour la logique JS (unlocking, toasts).
+   Seul le moment du déverrouillage est visible, via toast. */
+#tdb-achievements { display: none; }
+
+.tdb-achievements {
+  display: flex;
+  gap: 0.45rem;
+  flex-wrap: wrap;
+}
+
+.tdb-achievement-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 0.2rem 0.6rem;
+  border-radius: 50px;
+  transition: all 0.3s ease;
+}
+
+/* Verrouillé : grisé, désaturé, semi-transparent */
+.tdb-achievement-badge.locked {
+  background: #F3F4F6;
+  color: #9CA3AF;
+  filter: grayscale(1);
+  opacity: 0.55;
+}
+
+/* Déverrouillé : vert émeraude + border subtile */
+.tdb-achievement-badge.unlocked {
+  background: #ECFDF5;
+  color: #059669;
+  border: 1px solid rgba(5, 150, 105, 0.2);
+}
+
+/* En cours de déverrouillage : animation pop cubic-bezier overshoot */
+.tdb-achievement-badge.unlocking {
+  animation: ach-pop 0.6s cubic-bezier(.175, .885, .32, 1.275) forwards;
+}
+
+/* Pop spring : échelle 0.8 → 1.15 (dépassement) → 1 */
+@keyframes ach-pop {
+  0%   { transform: scale(0.8); opacity: 0.4; }
+  60%  { transform: scale(1.15); }
+  100% { transform: scale(1); opacity: 1; background: #ECFDF5; color: #059669; }
+}
+
+.ach-icon  { font-size: 0.9rem; }
+.ach-label { white-space: nowrap; } /* Évite le retour à la ligne sur les labels courts */
+
+
+/* ============================================================
+   TOAST Bootstrap — Notifications non-bloquantes
+
+   z-index 1100 : au-dessus de la navbar sticky (z-index Bootstrap = 1020)
+   et des modals (z-index = 1050). Les toasts flottent sur tout.
+   Chaque toast a une palette propre : indigo / émeraude / violet.
+   ============================================================ */
+
+.toast-container {
+  z-index: 1100;
+}
+
+/* Toast Contact — bleu indigo : validation formulaire
+   border + shadow pour ressortir sur fond blanc de la page Contact */
+#toast-contact {
+  border: 1.5px solid #4F46E5;
+  box-shadow: 0 8px 32px rgba(79, 70, 229, 0.22);
+}
+#toast-contact .toast-header {
+  background: #EEF2FF;
+  color: #4338CA;
+  border-bottom: 1px solid rgba(79, 70, 229, 0.15);
+}
+#toast-contact .toast-body {
+  background: #fff;
+  color: #1F2937;
+  font-weight: 500;
+}
+
+/* Toast Exercice — taille et espacement */
+#toast-exercice {
+  min-width: 320px;
+  padding: 4px;
+}
+#toast-exercice .toast-header {
+  padding: 12px 16px;
+}
+#toast-exercice .toast-body {
+  padding: 12px 20px 16px;
+  font-size: 0.95rem;
+}
+
+/* Bonne réponse — émeraude */
+.toast-exercice-header--correct {
+  background: #F0FDF4;
+  color: #065F46;
+  border-bottom: 1px solid rgba(16, 185, 129, 0.15);
+}
+
+/* Mauvaise réponse — rouge doux */
+.toast-exercice-header--incorrect {
+  background: #FEF2F2;
+  color: #991B1B;
+  border-bottom: 1px solid rgba(239, 68, 68, 0.15);
+}
+
+/* Toast Level-up — violet festif + border-left violet */
+.toast-levelup-header {
+  background: #F5F3FF;
+  color: #5B21B6;
+  border-bottom: 1px solid rgba(124, 58, 237, 0.2);
+}
+
+.toast-levelup {
+  border-left: 4px solid #7C3AED; /* Identifiant visuel fort sur le côté gauche */
+}
+
+
+/* ============================================================
+   12. FOOTER
+   ============================================================ */
+
+/* Fond sombre (var(--color-text) = #1F2937) — contraste net avec le reste de la page */
+.site-footer {
+  background: var(--color-text);
+  color: #9CA3AF;
+  font-size: 0.82rem;
+}
+
+
+/* ============================================================
+   13. MODAL QUIZ — 2 formats interactifs : MCQ (Bootstrap row/col) + Trous
+   ============================================================ */
+
+/* ─── Format MCQ — grille Bootstrap row g-2 col-6 (HTML généré par app.js) ─── */
+
+/* Bouton quiz : fond blanc au repos, border gris — neutre pour ne pas biaiser le choix */
+.quiz-btn {
+  font-family: var(--font-main);
+  font-weight: 600;
+  font-size: 0.875rem;
+  padding: 0.7rem 0.5rem;
+  border-radius: 10px;
+  border: 1.5px solid #E5E7EB;
+  background: #fff;
+  color: var(--color-text);
+  cursor: pointer;
+  text-align: center;
+  transition: background 0.15s ease, border-color 0.15s ease, transform 0.1s ease;
+}
+
+/* Hover : fond indigo clair + élévation — indication d'interactivité */
+.quiz-btn:hover:not(:disabled) {
+  background: #EEF2FF;
+  border-color: var(--bs-primary);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.12);
+}
+
+/* Click : scale down — retour physique au clic */
+.quiz-btn:active:not(:disabled) {
+  transform: scale(0.96);
+  box-shadow: none;
+}
+
+/* Désactivé après réponse — empêche la re-sélection */
+.quiz-btn:disabled { cursor: not-allowed; opacity: 0.65; }
+
+/* Bonne réponse : vert émeraude + animation spring de célébration */
+.quiz-btn.correct {
+  background: #F0FDF4;
+  border-color: #10B981;
+  color: #065F46;
+  animation: quiz-correct-spring 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* Mauvaise réponse : rouge + shake horizontal — retour d'erreur classique */
+.quiz-btn.wrong {
+  background: #FEF2F2;
+  border-color: #EF4444;
+  color: #991B1B;
+  animation: quiz-wrong-shake 0.45s cubic-bezier(0.36, 0.07, 0.19, 0.97);
+}
+
+/* Scale dépassement → retour : sentiment de "clic récompensé" */
+@keyframes quiz-correct-spring {
+  0%   { transform: scale(1); }
+  40%  { transform: scale(1.1); }
+  70%  { transform: scale(0.97); }
+  100% { transform: scale(1); }
+}
+
+/* Shake horizontal : va-et-vient rapide — erreur claire sans être punitif */
+@keyframes quiz-wrong-shake {
+  0%, 100% { transform: translateX(0); }
+  15%       { transform: translateX(-6px) rotate(-1deg); }
+  35%       { transform: translateX(6px) rotate(1deg); }
+  55%       { transform: translateX(-4px); }
+  75%       { transform: translateX(4px); }
+}
+
+
+/* ─── Format Compléter les trous (Français) ─── */
+
+/* Zone de texte : fond bleuté clair, police mono, line-height large pour les inputs inline */
+.quiz-trous-texte {
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+  line-height: 2;         /* Espace supplémentaire pour que les inputs ne se chevauchent pas */
+  background: #F8FAFF;
+  border-radius: 10px;
+  padding: 1rem 1.25rem;
+  white-space: pre-wrap;
+}
+
+/* Input inline dans le texte :
+   border-bottom en tirets pointillés : suggère "à remplir" sans casser le flow du texte.
+   background: transparent : s'intègre dans le fond de la zone.
+   text-align: center : le texte saisi est centré sous le pointillé. */
+.quiz-trou-input {
+  font-family: var(--font-mono);
+  font-size: 0.88rem;
+  font-weight: 600;
+  border: none;
+  border-bottom: 2px dashed var(--bs-primary);
+  background: transparent;
+  color: var(--bs-primary);
+  text-align: center;
+  min-width: 100px;
+  outline: none; /* supprimé au profit du :focus-visible ci-dessous */
+  padding: 0 0.25rem;
+  transition: border-color 0.2s ease, color 0.2s ease;
+}
+
+/* Focus clavier : ring indigo visible — compensatoire au outline: none ci-dessus */
+.quiz-trou-input:focus-visible {
+  outline: 3px solid var(--bs-primary);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+/* Feedback correct/wrong : changement couleur de la bordure et du texte saisi */
+.quiz-trou-input.correct { border-bottom-color: #10B981; color: #065F46; }
+.quiz-trou-input.wrong   { border-bottom-color: #EF4444; color: #991B1B; }
+
+/* Bouton Valider : pilule arrondie (border-radius 50px) — différenciation
+   intentionnelle d'avec les boutons rectangulaires (--radius-btn: 4px).
+   Le bouton de validation de texte libre mérite un style distinct des MCQ. */
+.quiz-trous-submit {
+  margin-top: 0.75rem;
+  font-family: var(--font-main);
+  font-weight: 600;
+  font-size: 0.875rem;
+  padding: 0.55rem 1.25rem;
+  border-radius: 50px;
+  border: none;
+  background: var(--bs-primary);
+  color: #fff;
+  cursor: pointer;
+  transition: background 0.15s ease, transform 0.1s ease;
+}
+
+.quiz-trous-submit:hover:not(:disabled) { background: #4338CA; transform: translateY(-1px); }
+.quiz-trous-submit:disabled             { opacity: 0.5; cursor: not-allowed; }
+
+
+/* ─── Explication après réponse (tous formats) ─── */
+
+
+/* ============================================================
+   14. RESPONSIVE — Ajustements mobile + Accessibilité
+   ============================================================ */
+
+/* Corrections mobile héritées des premières sessions (conservées) */
+@media (max-width: 767px) {
+  .hero-title { font-size: 1.75rem; }
+  .hero-img   { max-width: 280px; margin-top: 1rem; }
+  .citation-bloc { padding: 1rem 1.25rem; }
+}
+
+/* Padding sections desktop — augmenté au-delà de 992px (plus d'air sur grand écran) */
+@media (min-width: 992px) {
+  #exercices, #ressources, #contact {
+    padding-top: 5rem;
+    padding-bottom: 5rem;
+  }
+}
+
+@media (min-width: 1200px) {
+  #exercices, #ressources, #contact {
+    padding-top: 6rem;
+    padding-bottom: 6rem;
+  }
+}
+
+/* Gap cards desktop — Bootstrap gutter augmenté */
+@media (min-width: 992px) {
+  #liste-exercices {
+    --bs-gutter-x: 2rem;
+    --bs-gutter-y: 2rem;
+  }
+}
+
+/* Boutons quiz mobile : pleine largeur + taille texte augmentée pour le touch */
+@media (max-width: 480px) {
+  .quiz-btn {
+    max-width: 100%;
+    font-size: 0.9rem;
+    padding: 0.6rem 1rem;
+  }
+}
+
+/* ── Accessibilité : focus ring visible au clavier ──
+   :focus-visible cible UNIQUEMENT la navigation clavier (pas les clics souris/touch).
+   Évite le focus ring visible au clic (irritant visuellement) tout en
+   le conservant pour la navigation clavier (essentiel à l'accessibilité). */
+.quiz-btn:focus-visible,
+.btn:focus-visible {
+  outline: 3px solid var(--bs-primary);
+  outline-offset: 3px;
+}
+
+/* Sous-titre hero alternatif (classe utilitaire) */
+.hero-subtitle {
+  font-size: 1.125rem;
+  line-height: 1.7;
+  color: var(--text-muted);
+  margin-top: 0.75rem;
+}
+
+/* Police mono sur les compteurs XP — alignement fixe des chiffres */
+.tdb-xp-badge,
+.badge-niveau {
+  font-family: var(--font-mono);
+  font-weight: 500;
+}
+
+/* Bouton submit Contact : centré, largeur max 280px
+   display:block + margin auto = centrage horizontal */
+#form-contact [type="submit"] {
+  max-width: 280px;
+  display: block;
+  margin: 0 auto;
+  width: 100%;
+}
+
+/* Trait section-title centré — la pseudo-règle ::after part de left:50% + translateX(-50%)
+   quand le titre est dans un contexte .text-center (section Contact) */
+.text-center .section-title::after {
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+/* Variation de teinte sur les illustrations cards :
+   La base est saturate(0.65) brightness(1.02) définie sur .card-illustration.
+   Ces règles nth-child ajoutent hue-rotate pour différencier les cards d'une même matière.
+   IMPORTANT : saturate(0.65) doit être répété dans chaque override — sinon la base
+   est perdue et les illustrations semblent trop criardes sur les cards 2 et 3. */
+#liste-exercices .col-card:nth-child(3n+2) .card-illustration {
+  filter: saturate(0.65) brightness(1.04) hue-rotate(12deg);   /* +12° de teinte */
+}
+#liste-exercices .col-card:nth-child(3n+3) .card-illustration {
+  filter: saturate(0.65) brightness(0.98) hue-rotate(-10deg);  /* -10° de teinte */
+}
+
+/* ============================================================
+   15. AJOUTS BRIEF 15/06/2026
+   ============================================================ */
+
+/* ── Typographie utilitaire ── */
+.subtitle   { font-size: 1rem; color: #4F46E5; font-weight: 400; line-height: 1.6; }
+.label-caps { font-size: .6875rem; font-weight: 600; text-transform: uppercase;
+              letter-spacing: .06em; color: #9CA3AF; }
+
+/* Sous-titres de section (.lead sous chaque H2) — indigo #4F46E5
+   #6366F1 écarté : ratio 4.47:1 sur blanc, en dessous du seuil WCAG AA (4.5:1).
+   #4F46E5 = 6.28:1 ✓ — même teinte, un cran plus foncé, passe AA sans réserve. */
+section .lead { color: #3730A3; }
+
+/* Animation finale 9/9 */
+@keyframes pulse-success {
+  0%   { box-shadow: 0 0 0 0 rgba(99,153,34,.4); }
+  70%  { box-shadow: 0 0 0 12px rgba(99,153,34,0); }
+  100% { box-shadow: 0 0 0 0 rgba(99,153,34,0); }
+}
+.pulse-success { animation: pulse-success .6s ease 3; }
+
+/* ── Composants modal refonte ── */
+
+/* Pill timer dans le header */
+.timer-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: #F1F5F9;
+  border: 1px solid #E2E8F0;
+  border-radius: 50px;
+  padding: 4px 10px;
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--bs-primary);
+  transition: color 0.5s ease, background 0.5s ease;
+  min-width: 60px;
+  text-align: center;
+  flex-shrink: 0;
+}
+.timer-pill.warm     { color: #F97316; background: #FFF7ED; }
+.timer-pill.hot      { color: #EF4444; background: #FEF2F2; }
+.timer-pill.critique { color: #991B1B; background: #FEE2E2; }
+
+/* Bande contextuelle timer */
+.timer-explain {
+  font-size: 0.78rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  color: #374151;
+}
+.timer-explain-maths    { background: var(--maths-bg);  }
+.timer-explain-francais { background: var(--french-bg); }
+.timer-explain-sciences { background: var(--sci-bg);    }
+
+/* Énoncé court affiché directement (remplace le collapse) */
+.enonce-court {
+  font-size: 0.92rem;
+  line-height: 1.65;
+  color: #374151;
+  background: #F9FAFB;
+  border-radius: 10px;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1rem;
+}
+
+/* Zone feedback post-réponse */
+.feedback-zone { margin-top: 0.75rem; }
+
+/* Toast matière complète — header émeraude doré */
+#toast-matiere .toast-header {
+  background: #FFFBEB;
+  color: #92400E;
+  border-bottom: 1px solid rgba(239, 159, 39, 0.2);
+}
+
+/* ── Animations feedback (grille créativité) ── */
+@keyframes bounce-in {
+  0%   { transform: scale(0.95); }
+  60%  { transform: scale(1.03); }
+  100% { transform: scale(1); }
+}
+@keyframes shake-feedback {
+  0%,100% { transform: translateX(0); }
+  25%      { transform: translateX(-6px); }
+  75%      { transform: translateX(6px); }
+}
+.feedback-correct { animation: bounce-in .25s ease; }
+.feedback-wrong   { animation: shake-feedback .3s ease; }
+
+/* Conteneur vidéo YouTube — max 560px centré (taille standard embed YouTube) */
+.video-wrap {
+  max-width: 560px;
+  margin: 0 auto;
+}
+
+/* ============================================================
+   16. TOAST BONUS 17s — Notification immersive centrée
+   Pas un Bootstrap toast — div custom overlay + card amber.
+   Créé et supprimé du DOM dynamiquement par afficherToastBonus17s().
+   ============================================================ */
+
+@keyframes toast-bonus-in {
+  from { opacity: 0; transform: translate(-50%, -50%) scale(0.88); }
+  to   { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+}
+
+@keyframes toast-bonus-out {
+  from { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+  to   { opacity: 0; transform: translate(-50%, -50%) scale(0.88); }
+}
+
+.toast-bonus-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  z-index: 9998;
+  animation: none; /* géré par JS opacity transition */
+}
+
+.toast-bonus-card {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 9999;
+  min-width: 360px;
+  max-width: 480px;
+  padding: 32px 24px;
+  background: #FAEEDA;
+  border: 1.5px solid #EF9F27;
+  border-radius: 16px;
+  text-align: center;
+  animation: toast-bonus-in 0.3s ease forwards;
+}
+
+.toast-bonus-card.out {
+  animation: toast-bonus-out 0.3s ease forwards;
+}
+
+.toast-bonus-title {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #633806;
+  margin: 0 0 8px;
+}
+
+.toast-bonus-sub {
+  font-size: .875rem;
+  color: #633806;
+  margin: 0;
+  opacity: .85;
+}
+
+/* ── prefers-reduced-motion — unique !important justifié ──
+   Les utilisateurs qui ont activé "Réduire les animations" dans leur OS
+   souffrent parfois de vertiges ou d'épilepsie photosensible.
+   On coupe TOUTES les animations/transitions en 0.01ms (pas 0, pour éviter
+   les bugs de state machine CSS qui testent duration === 0).
+   !important est ici justifié car c'est une directive d'accessibilité système :
+   aucune règle applicative ne doit l'emporter sur le choix de l'utilisateur. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+  /* <video autoplay> : mise en pause gérée via JS (app.js) — CSS ne peut pas arrêter la lecture vidéo */
+}

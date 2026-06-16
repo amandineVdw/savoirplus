@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<!--
+  SavoirPlus — Plateforme éducative interactive
+  Web Designer UI/UX · IFOSUP Wavre · Juin 2026
+  Stack : HTML5 + Bootstrap 5.3.3 local + JavaScript ES6+ vanilla
+
+  Structure DOM :
+    <nav>        — Navbar sticky glassmorphism + logo tampon
+    <main>
+      #accueil   — Hero : texte / illustration / bloc gamification 2fr+1fr
+      #exercices — Cards dynamiques (app.js) + filtres + modals quiz
+      #ressources — Accordéon + fiches révision + embed vidéo
+      #contact   — Formulaire validé sans alert()
+    <footer>     — Logo tampon dark + légale
+    Toasts       — position:fixed, hors flux (z-1100)
+    #modals-container — injecté par app.js, hors <main>
+    Scripts      — fin <body> pour éviter le render blocking
+-->
+<html lang="fr">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SavoirPlus — Exercices interactifs pour le secondaire belge</title>
+  <meta name="description" content="Des exercices en Maths, Français et Sciences pour les élèves du secondaire belge. Gratuit, interactif, sans surprises.">
+  <meta name="author" content="Amandine Van de Winckel">
+  <meta name="robots" content="index, follow">
+
+  <!-- Open Graph — partage réseaux sociaux -->
+  <meta property="og:title" content="SavoirPlus — Exercices interactifs pour le secondaire belge">
+  <meta property="og:description" content="Des exercices en Maths, Français et Sciences pour les élèves du secondaire belge. Gratuit, interactif, sans surprises.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://savoirplus-pied.vercel.app">
+  <meta property="og:image" content="https://savoirplus-pied.vercel.app/img/screenshot.webp">
+  <meta property="og:locale" content="fr_BE">
+
+  <!-- Favicon — + orange sur fond indigo -->
+  <link rel="icon" href="img/favicon.svg" type="image/svg+xml">
+
+  <!-- Couleur de thème mobile (barre navigateur sur Android/iOS) -->
+  <meta name="theme-color" content="#4F46E5">
+
+  <!-- Preload police principale — réduit FCP en chargeant Plus Jakarta Sans en priorité -->
+  <link rel="preload" href="css/fonts/plus-jakarta-sans.ttf" as="font" type="font/ttf" crossorigin>
+
+  <!-- Polices locales — déclarées via @font-face dans style.css (css/fonts/)
+       Variable Fonts OFL 1.1 — fonctionne hors connexion, servi via Vercel CDN en ligne -->
+
+  <!-- Reset minimaliste — bloquant volontaire : tiny (450B), inliné en pratique par le réseau -->
+  <link href="css/reset.css" rel="stylesheet">
+
+  <!-- Bootstrap 5.3.3 + style.css : préchargés via rel=preload, appliqués par onload
+       → le navigateur télécharge le CSS en parallèle sans bloquer le premier rendu (FCP)
+       → onload="this.onload=null;this.rel='stylesheet'" : bascule rel dès que le fichier est prêt
+       → <noscript> : fallback si JS est désactivé (comportement bloquant classique) -->
+  <link rel="preload" href="css/bootstrap.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <link rel="preload" href="css/style.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript>
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/style.css">
+  </noscript>
+
+  <!-- Styles impression — masque la gamification, affiche le contenu utile -->
+  <link href="css/print.css" rel="stylesheet" media="print">
+</head>
+
+<body>
+
+  <!-- =====================================================
+       NAVBAR
+       Bootstrap navbar responsive avec comportement sticky-top.
+       aria-label sur le <nav> : identifie cette navigation pour les AT
+       (la page pourrait avoir plusieurs <nav> — landmarks distincts).
+
+       Comportement hamburger :
+         data-bs-toggle="collapse" + data-bs-target="#navMenu" gérés par Bootstrap JS.
+         aria-expanded piloté automatiquement par Bootstrap.
+         aria-controls lie le bouton à l'ID du collapse qu'il contrôle.
+       ===================================================== -->
+  <nav class="navbar navbar-expand-lg sticky-top navbar-savoirplus" aria-label="Navigation principale">
+    <div class="container">
+
+      <!-- Logo tampon administratif Direction 3
+           Logo en flex colonne : nom sur la ligne 1, référence FWB sur la ligne 2.
+           d-none d-lg-block sur la référence : masquée sous 992px (trop petite sur mobile).
+           Logo comme lien #accueil : remonte en haut de page (ancre + scroll-behavior:smooth CSS). -->
+      <a class="navbar-brand logo-tampon" href="#accueil" aria-label="SavoirPlus — accueil">
+        <div class="logo-stamp-wrap">
+          <!-- Le + orange en rotate(3deg) — cohérence avec le tampon URGENT diagonal de La Circulaire -->
+          <span class="logo-stamp-name">SAVOIR<span class="logo-stamp-plus">+</span></span>
+        </div>
+        <!-- Référence administrative fictive — visible desktop uniquement (d-none d-lg-block) -->
+        <span class="logo-stamp-ref d-none d-lg-block">FWB · Art. <span class="logo-stamp-ref-code">60%</span> · URGENT</span>
+      </a>
+
+      <!-- Hamburger mobile — visible sous 992px (navbar-expand-lg).
+           aria-label explicite car le bouton ne contient que l'icône SVG Bootstrap.
+           aria-expanded mis à jour automatiquement par Bootstrap.js au toggle. -->
+      <button class="navbar-toggler" type="button"
+        data-bs-toggle="collapse"
+        data-bs-target="#navMenu"
+        aria-controls="navMenu"
+        aria-expanded="false"
+        aria-label="Ouvrir le menu">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <!-- Collapse — id="navMenu" référencé par data-bs-target et aria-controls.
+           ms-auto + align-items-lg-center : aligne les liens à droite sur desktop.
+           gap-lg-1 : espacement minimal entre les liens sur desktop.
+           mb-2 mb-lg-0 : marge basse en mode collapse mobile, annulée desktop. -->
+      <div class="collapse navbar-collapse" id="navMenu">
+        <ul class="navbar-nav ms-auto align-items-lg-center gap-lg-1 mb-2 mb-lg-0">
+          <li class="nav-item"><a class="nav-link" href="#accueil">Accueil</a></li>
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#exercices"
+               role="button" data-bs-toggle="dropdown" aria-expanded="false">Exercices</a>
+            <ul class="dropdown-menu">
+              <li><a class="dropdown-item maths-link" href="#exercices" data-filtre-nav="Maths">Maths</a></li>
+              <li><a class="dropdown-item francais-link" href="#exercices" data-filtre-nav="Français">Français</a></li>
+              <li><a class="dropdown-item sciences-link" href="#exercices" data-filtre-nav="Sciences">Sciences</a></li>
+            </ul>
+          </li>
+          <li class="nav-item"><a class="nav-link" href="#ressources">Ressources</a></li>
+          <li class="nav-item"><a class="nav-link" href="#contact">Contact</a></li>
+        </ul>
+        <!-- CTA principal — ms-lg-3 : espace à gauche desktop / mt-2 mt-lg-0 : marge top mobile -->
+        <a href="#exercices" class="btn btn-primary btn-je-revise ms-lg-3 mt-2 mt-lg-0">Je révise →</a>
+      </div>
+
+    </div>
+  </nav>
+
+
+  <main>
+
+    <!-- =====================================================
+         SECTION ACCUEIL — Hero 3 zones
+
+         Découpe Bootstrap :
+           .container-fluid.px-0 : pleine largeur sans padding latéral
+           .row.g-0.align-items-stretch : colonnes sans gouttière, même hauteur
+           .col-lg-6.hero-left  : texte + CTA + stats badges (visible toujours)
+           .col-lg-6.hero-right.d-none.d-md-flex : visuel (masqué < 768px)
+
+         La zone hero-right est masquée sur mobile (d-none d-md-flex) :
+         sur petit écran, seule la colonne texte + CTA est visible.
+         Le XP strip (#tableau-de-bord) est HORS de la row — pleine largeur.
+         Il est en d-none par défaut et révélé par app.js au 1er exercice vu.
+         ===================================================== -->
+    <section id="accueil" class="section-hero">
+      <div class="container">
+        <div class="row g-0 align-items-stretch">
+
+          <!-- ── COLONNE GAUCHE — texte + CTA + statistiques ── -->
+          <div class="col-lg-6 hero-left">
+            <div class="hero-left-inner">
+
+              <!-- H1 : clamp(2rem, 4vw, 2.8rem) en CSS — responsive sans media query -->
+              <h1 class="hero-h1">Apprendre autrement.<br><span style="color:#3730A3">Progresser vraiment.</span></h1>
+
+              <!-- Sous-titre : contexte pédagogique — accroche + ligne secondaire séparée -->
+              <p class="hero-sub">
+                Des exercices interactifs en Maths, Français et Sciences.
+                <span class="hero-sub-tagline d-block text-muted">
+                  Gratuit. Sans circulaire. Sans réforme surprise.
+                </span>
+              </p>
+
+              <!-- Groupe CTA : bouton principal + micro-texte contextuel -->
+              <div class="hero-cta-group">
+                <a href="#exercices" class="btn btn-primary btn-lg hero-cta">Voir les exercices →</a>
+                <!-- Micro-CTA : rappel de l'enjeu (60%) en italique sous le bouton -->
+                <p class="micro-cta">
+                  Parce que <span class="text-orange">60%</span>, ça se prépare. Et on est là pour ça.
+                </p>
+              </div>
+
+              <!-- Stats badges : 3 pilules avec dot coloré -->
+              <div class="hero-stats">
+                <span class="stat-badge stat-indigo"><span class="stat-dot"></span>9 exercices disponibles</span>
+                <span class="stat-badge stat-green"><span class="stat-dot"></span>3 matières</span>
+                <span class="stat-badge stat-orange"><span class="stat-dot"></span>0 alert() dans le code</span>
+              </div>
+
+              <!-- Mascotte mobile — visible uniquement sur mobile (LCP hero garanti)
+                   d-block d-md-none : complémentaire de la hero-right cachée sur mobile
+                   fetchpriority=high : élément LCP sur mobile, chargé en priorité -->
+              <div class="d-block d-md-none text-center mt-3">
+                <picture>
+                  <source srcset="img/la-circulaire-fallback.webp" type="image/webp">
+                  <img src="img/la-circulaire-fallback.webp"
+                       alt="La Circulaire — mascotte SavoirPlus"
+                       width="160" height="160"
+                       fetchpriority="high"
+                       style="object-fit:contain">
+                </picture>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- ── COLONNE DROITE — illustration GIF + mascotte chip ──
+               d-none d-md-flex : masquée sur mobile, flex à partir de 768px
+               hero-right est position:relative → les éléments absolute (chip, watermark) s'ancrent ici
+
+               id="mascotte-widget" : conservé sur la chip car app.js fait getElementById('mascotte-widget')
+               data-niveau="0" : état initial Panique — CSS [data-niveau="0"] applique le style correspondant
+               App.js lit progression.size et met à jour widget.dataset.niveau à chaque exercice vu. -->
+          <div class="col-lg-6 hero-right d-none d-md-flex">
+
+            <!-- GIF Motion1 — La Circulaire se transforme en boulette zen (6 frames)
+                 GIF maintenu pour la transparence : le WebM (87 KB vs 296 KB, −71%) a été testé
+                 mais le codec VP8 ne préserve pas le canal alpha du GIF → fond noir visible.
+                 Correction possible : ré-encodage ffmpeg VP9 + yuva420p (hors scope brief).
+                 prefers-reduced-motion : CSS animation:none arrête le GIF via media query -->
+            <img
+              src="img/la-circulaire-motion1.gif"
+              alt="La Circulaire — mascotte SavoirPlus animée"
+              class="hero-illus"
+              width="300"
+              height="300"
+              fetchpriority="high"
+              aria-hidden="true"
+              onerror="this.src='img/la-circulaire-fallback.webp'">
+
+          </div>
+          <!-- Fin row hero -->
+        </div>
+
+        <!-- Gamification row — 2 colonnes desktop / empilé mobile -->
+        <div id="tableau-de-bord" class="gamification-row d-none">
+
+          <!-- Colonne gauche : XP strip -->
+          <div class="gamification-xp">
+            <div class="xp-strip-inner">
+              <div class="tdb-top">
+                <span id="tdb-niveau" class="tdb-niveau">😬 Élève en sursis</span>
+                <span id="tdb-xp" class="tdb-xp-badge">0 XP</span>
+              </div>
+              <div class="tdb-xp-track" role="progressbar" aria-label="Barre XP" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+                <div id="tdb-xp-bar" class="tdb-xp-fill" style="width:0%"></div>
+              </div>
+              <div class="tdb-stats">
+                <span id="tdb-count" class="tdb-stat-total">0 / 9 exercices</span>
+                <span class="tdb-stat-sep">|</span>
+                <span class="tdb-stat-mat tdb-stat-maths"><span class="mat-stripe"></span><span id="tdb-mat-maths">0/3</span></span>
+                <span class="tdb-stat-mat tdb-stat-francais"><span class="mat-stripe"></span><span id="tdb-mat-francais">0/3</span></span>
+                <span class="tdb-stat-mat tdb-stat-sciences"><span class="mat-stripe"></span><span id="tdb-mat-sciences">0/3</span></span>
+              </div>
+              <div id="tdb-achievements" class="tdb-achievements"></div>
+            </div>
+          </div>
+
+          <!-- Colonne droite : mascotte -->
+          <div class="gamification-mascotte">
+            <div id="mascotte-widget" class="mascotte-chip" data-niveau="0">
+              <div class="mascotte-avatar">
+                <picture>
+                  <source srcset="img/la-circulaire.webp" type="image/webp">
+                  <img src="img/la-circulaire.webp" alt="La Circulaire"
+                       width="88" height="88" style="object-fit:contain"
+                       loading="lazy"
+                       onerror="this.style.display='none'">
+                </picture>
+              </div>
+              <div class="mascotte-text">
+                <span class="mascotte-name">La Circulaire</span>
+                <span id="mascotte-bulle" class="mascotte-status">s'incline devant toi</span>
+                <span id="mascotte-bulle-sub" class="mascotte-status-sub"></span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+      </div><!-- /.container -->
+    </section>
+    <!-- Fin section Accueil -->
+
+
+    <!-- =====================================================
+         SECTION EXERCICES
+         Les cards et modals sont entièrement générées par app.js.
+         Le HTML ici ne fournit que :
+           - Le titre de section
+           - Le groupe de boutons filtre (câblés par initFiltres())
+           - La grille vide #liste-exercices (remplie par afficherExercices())
+
+         aria-live="polite" sur la grille : quand app.js injecte les cards ou
+         bascule d-none via le filtre, les screen readers annoncent le changement
+         sans interrompre la lecture en cours ("polite" = attend la fin).
+
+         role="group" + aria-label sur les filtres : regroupe les boutons filtre
+         sémantiquement pour les AT (sinon ce sont des boutons isolés sans lien).
+         ===================================================== -->
+    <section id="exercices" class="section-exercices py-5">
+      <div class="container">
+
+        <h2 class="section-title">Les exercices</h2>
+        <p class="lead mb-4">
+          Choisis ta matière. On promet de ne pas parler de décret pendant les 25 premières minutes.
+        </p>
+
+        <!-- Boutons filtre par matière
+             data-filtre : valeur lue par initFiltres() pour comparer à .col-card[data-matiere]
+             .actif sur "Tous" par défaut — état initial cohérent avec l'affichage (tout visible) -->
+        <div class="d-flex flex-wrap gap-2 mb-4" id="filtres-container" role="group" aria-label="Filtrer par matière">
+          <button class="btn btn-filtre actif" data-filtre="Tous">Tous</button>
+          <button class="btn btn-filtre" data-filtre="Maths">Maths</button>
+          <button class="btn btn-filtre" data-filtre="Français">Français</button>
+          <button class="btn btn-filtre" data-filtre="Sciences">Sciences</button>
+        </div>
+
+        <!-- Grille de cards — vide au chargement, remplie par afficherExercices() -->
+        <div class="row g-4" id="liste-exercices" aria-live="polite"></div>
+
+      </div>
+    </section>
+
+
+    <!-- =====================================================
+         SECTION RESSOURCES
+         Contenu statique : accordéon Bootstrap + fiches + citation.
+         Pas de génération JS — contenu pédagogique fixe.
+
+         Accordéon :
+           data-bs-parent="#accordeon-ressources" : un seul item ouvert à la fois.
+           Premier item ouvert par défaut (accordion-button sans .collapsed + collapse show).
+           aria-expanded / aria-controls gérés automatiquement par Bootstrap.
+         ===================================================== -->
+    <section id="ressources" class="section-ressources py-5">
+      <div class="container">
+
+        <h2 class="section-title">Ressources</h2>
+        <p class="lead mb-4">
+          Fiches, astuces et conseils — pour réviser sans perdre le wifi ni la volonté de vivre.
+        </p>
+
+        <!-- Accordéon Bootstrap — 4 conseils de révision avec ton SavoirPlus -->
+        <div class="accordion mb-5" id="accordeon-ressources">
+
+          <!-- Item 1 — ouvert par défaut (accordion-button sans .collapsed + collapse show) -->
+          <div class="accordion-item">
+            <h3 class="accordion-header" id="heading-1">
+              <button class="accordion-button" type="button"
+                data-bs-toggle="collapse" data-bs-target="#collapse-1"
+                aria-expanded="true" aria-controls="collapse-1">
+                La méthode Pomodoro (ou comment survivre 25 minutes sans TikTok)
+              </button>
+            </h3>
+            <!-- aria-labelledby lie le panneau à son bouton (accessible par AT) -->
+            <div id="collapse-1" class="accordion-collapse collapse show"
+              aria-labelledby="heading-1" data-bs-parent="#accordeon-ressources">
+              <div class="accordion-body">
+                Découpe tes révisions en blocs de 25 minutes : 25 min de travail, 5 min de pause.
+                Après 4 blocs, fais une pause de 20 min. Ton cerveau retient mieux en plusieurs
+                courtes sessions qu'en un marathon nocturne.
+              </div>
+            </div>
+          </div>
+
+          <!-- Item 2 — fermé par défaut (.collapsed + aria-expanded="false" + pas de .show) -->
+          <div class="accordion-item">
+            <h3 class="accordion-header" id="heading-2">
+              <button class="accordion-button collapsed" type="button"
+                data-bs-toggle="collapse" data-bs-target="#collapse-2"
+                aria-expanded="false" aria-controls="collapse-2">
+                Récupération active : arrête de relire, commence à te souvenir
+              </button>
+            </h3>
+            <div id="collapse-2" class="accordion-collapse collapse"
+              aria-labelledby="heading-2" data-bs-parent="#accordeon-ressources">
+              <div class="accordion-body">
+                Pose ta feuille et essaie de te rappeler les points clés sans regarder. Ce qu'on
+                appelle « récupération active » double l'efficacité de la mémorisation. Fais des
+                résumés de mémoire, interroge-toi à voix haute.
+              </div>
+            </div>
+          </div>
+
+          <div class="accordion-item">
+            <h3 class="accordion-header" id="heading-3">
+              <button class="accordion-button collapsed" type="button"
+                data-bs-toggle="collapse" data-bs-target="#collapse-3"
+                aria-expanded="false" aria-controls="collapse-3">
+                Ton espace de travail : l'ennemi, c'est la notif
+              </button>
+            </h3>
+            <div id="collapse-3" class="accordion-collapse collapse"
+              aria-labelledby="heading-3" data-bs-parent="#accordeon-ressources">
+              <div class="accordion-body">
+                Téléphone face vers le bas. Notifications désactivées. Un seul onglet ouvert.
+                Ton cerveau switche d'une tâche à l'autre en permanence, et chaque switch coûte
+                de l'énergie. Un environnement calme = une concentration plus profonde.
+              </div>
+            </div>
+          </div>
+
+          <div class="accordion-item">
+            <h3 class="accordion-header" id="heading-4">
+              <button class="accordion-button collapsed" type="button"
+                data-bs-toggle="collapse" data-bs-target="#collapse-4"
+                aria-expanded="false" aria-controls="collapse-4">
+                Comprendre avant de mémoriser (la méthode du prof imaginaire)
+              </button>
+            </h3>
+            <div id="collapse-4" class="accordion-collapse collapse"
+              aria-labelledby="heading-4" data-bs-parent="#accordeon-ressources">
+              <div class="accordion-body">
+                Avant de mémoriser une formule, demande-toi : pourquoi ça fonctionne ? Si tu peux
+                l'expliquer à voix haute comme si tu étais prof, c'est que tu l'as vraiment compris.
+              </div>
+            </div>
+          </div>
+
+        </div>
+        <!-- Fin accordéon -->
+
+        <!-- Fiches de révision rapide — 3 cards statiques, une par matière
+             Bootstrap col-md-4 : 3 colonnes desktop, 1 colonne mobile
+             Stripe + badge coloré : même système design que les cartes exercices (cohérence Gestalt) -->
+        <h3 class="mb-3">Fiches de révision</h3>
+        <div class="row g-3 mb-5">
+
+          <div class="col-md-4">
+            <div class="card card-fiche h-100">
+              <div class="card-stripe stripe-maths"></div>
+              <div class="card-body">
+                <span class="badge badge-maths mb-2">Maths</span>
+                <h4 class="card-title">Équations du 1er degré</h4>
+                <p class="card-text small">
+                  Rassemble les x d'un côté, les constantes de l'autre. Effectue la même opération
+                  des deux côtés. Vérifie en réinjectant la solution dans l'équation de départ.
+                </p>
+                <a href="https://quizlet.com/fr/848088375/quiz-equations-du-premier-degre-flash-cards/"
+                   target="_blank" rel="noopener"
+                   class="btn btn-sm btn-maths mt-2">Révise sur Quizlet →</a>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-4">
+            <div class="card card-fiche h-100">
+              <div class="card-stripe stripe-francais"></div>
+              <div class="card-body">
+                <span class="badge badge-francais mb-2">Français</span>
+                <h4 class="card-title">Les 8 figures de style</h4>
+                <p class="card-text small">
+                  Métaphore, comparaison, hyperbole, personnification, métonymie, allégorie,
+                  antithèse, oxymore. Demande-toi ce qui est comparé, exagéré ou humanisé.
+                </p>
+                <a href="https://quizlet.com/fr-fr/fiches-de-memorisation/les-figures-de-style-3eme-brevet-459498978"
+                   target="_blank" rel="noopener"
+                   class="btn btn-sm btn-francais mt-2">Révise sur Quizlet →</a>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-4">
+            <div class="card card-fiche h-100">
+              <div class="card-stripe stripe-sciences"></div>
+              <div class="card-body">
+                <span class="badge badge-sciences mb-2">Sciences</span>
+                <h4 class="card-title">Les états de la matière</h4>
+                <p class="card-text small">
+                  Fusion, vaporisation, condensation, solidification, sublimation, condensation
+                  solide. À l'échelle moléculaire : agitation thermique = chaleur.
+                </p>
+                <a href="https://quizlet.com/fr/566827711/les-etats-de-la-matiere-et-les-changements-detat-flash-cards/"
+                   target="_blank" rel="noopener"
+                   class="btn btn-sm btn-sciences mt-2">Révise sur Quizlet →</a>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Citation inspirante — blockquote avec border-left indigo -->
+        <blockquote class="citation-bloc">
+          <p>
+            « Avec le nouveau décret, vous aurez besoin de 60% pour réussir. Bonne nouvelle :
+            SavoirPlus, c'est gratuit, et ça ne manifeste pas. »
+          </p>
+          <footer>— Un prof de l'IFOSUP, anonyme par prudence (et par stratégie syndicale)</footer>
+        </blockquote>
+
+        <!-- BLOC VIDÉO SCIENCES — ajouté le 15/06/2026 -->
+        <div class="mt-5 video-wrap">
+          <h3 class="mb-2 text-center">Vidéo — Sciences en mouvement</h3>
+          <p class="text-muted mb-3 text-center">
+            Complète tes révisions avec cette vidéo, puis entraîne-toi sur
+            <a href="https://quizlet.com/fr/566827711/les-etats-de-la-matiere-et-les-changements-detat-flash-cards/" target="_blank" rel="noopener">Quizlet</a>
+            avec les flashcards états de la matière.
+          </p>
+
+          <div class="ratio ratio-16x9">
+            <iframe
+              src="https://www.youtube-nocookie.com/embed/qsSzCz3_6yw"
+              title="Les états de la matière — Professeur Louphoque (vidéo pédagogique)"
+              frameborder="0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              referrerpolicy="strict-origin-when-cross-origin"
+              allowfullscreen
+              loading="lazy"
+            ></iframe>
+          </div>
+          <p class="video-print-fallback" style="display:none">
+            Vidéo : Les états de la matière — Professeur Louphoque<br>
+            https://www.youtube.com/watch?v=qsSzCz3_6yw
+          </p>
+
+          <p class="text-muted mt-2 small text-center">
+            <strong>Les états de la matière — Professeur Louphoque</strong> —
+            <a href="https://quizlet.com/fr/566827711/les-etats-de-la-matiere-et-les-changements-detat-flash-cards/" target="_blank" rel="noopener">Flashcards Quizlet →</a>
+          </p>
+        </div>
+        <!-- FIN BLOC VIDÉO SCIENCES -->
+
+      </div>
+    </section>
+
+
+    <!-- =====================================================
+         SECTION CONTACT
+         Formulaire de contact fictif (aucun backend) — démontre :
+           1. Validation UI sans alert() ni prompt() (brief IFOSUP)
+           2. Feedback visuel par champ (border rouge + message d'erreur)
+           3. Toast Bootstrap à la soumission valide
+
+         novalidate sur le form :
+           Désactive la validation native du navigateur (bulle HTML5).
+           Sans ça, Chrome/Firefox afficheraient leur propre bulle avant
+           que notre JS puisse intercepter l'événement submit.
+           On prend le contrôle complet de l'UX de validation.
+
+         role="alert" sur les .feedback-error :
+           Live region ARIA — le screen reader annonce le contenu du div
+           dès qu'il devient visible (classe .visible ajoutée par JS).
+           Pas besoin d'aria-live séparé — role="alert" l'implique.
+
+         autocomplete sur les inputs :
+           Aide le gestionnaire de mots de passe et le navigateur
+           à auto-remplir les bons champs. "given-name" et "email"
+           sont des valeurs standardisées HTML5 (WHATWG).
+         ===================================================== -->
+    <section id="contact" class="section-contact">
+      <div class="container">
+        <div class="row justify-content-center">
+          <div class="col-12">
+
+            <h2 class="section-title">Contact</h2>
+            <p class="lead mb-4">
+              Une question ? Un bug ? Une idée brillante ? On répond.
+              (Contrairement à certaines circulaires.)
+            </p>
+
+            <div class="contact-form-card">
+            <!-- novalidate : désactive la bulle native, JS gère tout -->
+            <form id="form-contact" novalidate>
+
+              <!-- Champ Nom -->
+              <div class="mb-3">
+                <!-- label[for] + input[id] identiques : association explicite (accessibilité, clic label) -->
+                <label for="input-nom" class="form-label">Nom <span class="text-danger" aria-hidden="true">*</span></label>
+                <input type="text" class="form-control" id="input-nom"
+                  placeholder="Ton nom (ou pseudo, on ne juge pas)"
+                  autocomplete="name">
+                <!-- role="alert" : annoncé par AT dès que .visible est ajouté par JS -->
+                <div class="feedback-error" id="error-nom" role="alert">
+                  On aimerait savoir à qui on parle.
+                </div>
+              </div>
+
+              <!-- Champ Email -->
+              <div class="mb-3">
+                <label for="input-email" class="form-label">Email <span class="text-danger" aria-hidden="true">*</span></label>
+                <!-- type="email" : clavier email sur mobile (pas de validation HTML5 car novalidate) -->
+                <input type="email" class="form-control" id="input-email"
+                  placeholder="quelquechose@quelquechose.be"
+                  autocomplete="email">
+                <div class="feedback-error" id="error-email" role="alert">
+                  Ton email a l'air un peu en vacances.
+                </div>
+              </div>
+
+              <!-- Champ Message -->
+              <div class="mb-4">
+                <label for="input-message" class="form-label">Message <span class="text-danger" aria-hidden="true">*</span></label>
+                <!-- rows="4" : hauteur initiale du textarea — redimensionnable par l'utilisateur -->
+                <textarea class="form-control" id="input-message" rows="4"
+                  placeholder="Explique ton souci, ton idée ou ta victoire du jour."></textarea>
+                <div class="feedback-error" id="error-message" role="alert">
+                  Le silence, c'est beau, mais pas dans ce formulaire.
+                </div>
+              </div>
+
+              <!-- Checkbox RGPD — consentement traitement données fictif -->
+              <div class="mb-4 form-check">
+                <input class="form-check-input" type="checkbox" id="rgpd-consent" required>
+                <label class="form-check-label" for="rgpd-consent">
+                  J'accepte l'utilisation de mes données pour traiter ma demande.
+                </label>
+              </div>
+
+              <button type="submit" class="btn btn-contact">Envoyer le message</button>
+
+            </form>
+            </div><!-- /.contact-form-card -->
+
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+
+  <!-- =====================================================
+       FOOTER
+       Logo tampon en version inversée (fond sombre).
+       .logo-stamp-dark : surcharge CSS — bordure et texte blancs.
+       .logo-stamp-name-dark : couleur texte blanche (pas indigo sur fond sombre).
+       La mention .footer-decret est un Easter egg narratif dans l'esprit du projet.
+       ===================================================== -->
+  <footer class="site-footer py-5">
+    <div class="container text-center">
+
+      <!-- Logo tampon version footer — même structure que navbar, couleurs inversées -->
+      <div class="footer-logo mb-3">
+        <div class="logo-stamp-wrap logo-stamp-dark">
+          <span class="logo-stamp-name logo-stamp-name-dark">SAVOIR<span class="logo-stamp-plus">+</span></span>
+        </div>
+      </div>
+
+      <p class="footer-legal mb-2">
+        <a href="mailto:hello@bodam.agency" class="footer-link"><strong>Amandine Van de Winckel</strong></a> —
+        <a href="mailto:bruno.martin@ifosup.wavre.be" class="footer-link">IFOSUP Wavre</a>
+        · WEB DESIGNER UI/UX 2026
+      </p>
+      <p class="footer-legal mb-2">
+        © 2026 — Plateforme éducative fictive à des fins pédagogiques ·
+        Conçu dans le cadre d'une évaluation IFOSUP
+      </p>
+      <p class="footer-legal mb-2 small text-muted">
+        <strong>Mentions légales :</strong>
+        Les données saisies dans le formulaire de contact ne sont pas transmises ni stockées.
+        Les exercices et personnages sont entièrement fictifs.
+        Les marques citées appartiennent à leurs propriétaires respectifs.
+      </p>
+      <p class="footer-legal mb-0">
+        <!-- Easter egg dans le ton SavoirPlus — défendable à l'oral comme "cohérence narrative" -->
+        <span class="footer-decret">Aucun décret n'a été voté pendant la création de ce site.</span>
+      </p>
+
+    </div>
+  </footer>
+
+
+  <!-- =====================================================
+       TOASTS — Notifications non-bloquantes
+       Position fixed bottom-right — hors du flux normal.
+       z-index 1100 (via .toast-container CSS) : au-dessus de la navbar (1020) et des modals (1050).
+
+       3 toasts distincts, stacking automatique par Bootstrap :
+         #toast-contact   — confirmation envoi formulaire (palette indigo)
+         #toast-exercice  — résultat quiz : titre + ✓/✗ + XP (palette émeraude)
+         #toast-levelup   — passage de niveau XP (palette violette festive)
+
+       aria-live="polite" + aria-atomic="true" :
+         polite  : annoncé après la lecture en cours (pas d'interruption)
+         atomic  : le screen reader re-lit l'intégralité du toast à chaque mise à jour
+                   (pas seulement le diff — important car le contenu change à chaque apparition)
+       ===================================================== -->
+  <!-- Toast Contact — bas droite, cohérent avec les autres toasts -->
+  <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index:9999">
+    <div id="toast-contact" class="toast" role="status" aria-live="polite" aria-atomic="true"
+         style="min-width:320px;text-align:center">
+      <div class="toast-header justify-content-center">
+        <strong>Message envoyé ✓</strong>
+        <button type="button" class="btn-close ms-2" data-bs-dismiss="toast" aria-label="Fermer"></button>
+      </div>
+      <div class="toast-body">
+        Un exploit de plus dans la journée. On te répond dès qu'on a fini notre café.
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Exercice — bas droite, cohérent avec les autres toasts -->
+  <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index:9999">
+    <div id="toast-exercice" class="toast" role="status" aria-live="polite" aria-atomic="true">
+      <div class="toast-header justify-content-center">
+        <strong class="me-auto" id="toast-exercice-titre">Exercice ✓</strong>
+        <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Fermer"></button>
+      </div>
+      <div class="toast-body" id="toast-exercice-body">
+        Continue comme ça.
+      </div>
+    </div>
+  </div>
+
+  <div class="toast-container position-fixed bottom-0 end-0 p-3">
+
+    <!-- Toast Matière — déclenché quand une matière est complétée (3/3) -->
+    <div id="toast-matiere" class="toast" role="status" aria-live="polite" aria-atomic="true">
+      <div class="toast-header">
+        <strong class="me-auto">Matière complétée !</strong>
+        <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Fermer"></button>
+      </div>
+      <div class="toast-body" id="toast-matiere-msg">
+        Matière terminée — tu maîtrises ça mieux que la ministre.
+      </div>
+    </div>
+
+    <!-- Toast Level-up — déclenché par declencherToastLevelUp() quand le niveau XP monte -->
+    <div id="toast-levelup" class="toast toast-levelup" role="status" aria-live="polite" aria-atomic="true">
+      <div class="toast-header toast-levelup-header">
+        <strong class="me-auto">Niveau supérieur !</strong>
+        <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Fermer"></button>
+      </div>
+      <div class="toast-body" id="toast-levelup-body">
+        Tu as progressé.
+      </div>
+    </div>
+
+  </div>
+
+
+  <!-- Conteneur des modals Bootstrap — rempli par genererModals() au DOMContentLoaded.
+       Placé HORS de <main> : bonne pratique Bootstrap pour éviter les conflits
+       de z-index ou d'overflow:hidden avec les éléments parents des sections.
+       Les modals injectées ici flottent correctement au-dessus de toute la page. -->
+  <div id="modals-container"></div>
+
+
+  <!-- =====================================================
+       SCRIPTS — Chargés EN FIN DE BODY (avant </body>)
+       Avantages vs chargement dans <head> sans defer :
+         1. Le HTML est parsé avant l'exécution des scripts
+         2. Plus besoin de DOMContentLoaded pour "attendre le DOM" (il est déjà là)
+         3. Pas de render blocking — la page s'affiche avant l'exécution JS
+
+       Bootstrap bundle inclut Popper.js (requis pour les tooltips et dropdowns).
+       app.js utilise bootstrap.Toast, bootstrap.Modal — requis que Bootstrap JS
+       soit chargé en premier.
+       ===================================================== -->
+  <!-- Bootstrap JS bundle local (inclut Popper) — AVANT app.js -->
+  <script src="js/bootstrap.bundle.min.js"></script>
+
+  <!-- Logique principale SavoirPlus — dépend de bootstrap (Toast, Modal, Collapse) -->
+  <script src="js/app.js"></script>
+
+</body>
+</html>

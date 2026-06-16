@@ -1,0 +1,20 @@
+/* print.css — Styles impression SavoirPlus
+   Masque la gamification et l'UI interactive, affiche le contenu pédagogique utile
+   Chargé avec media="print" — zéro impact sur les performances en navigation normale */
+
+@media print {
+  .navbar, .gamification-row,
+  .mascotte-chip, #toast-container, .btn,
+  .filtres-wrap, footer { display: none !important; }
+
+  body { font-size: 12pt; color: #000; background: #fff; }
+  h1, h2, h3 { color: #000; }
+  a { color: #000; text-decoration: underline; }
+  .card { break-inside: avoid; border: 1px solid #ccc; }
+
+  /* Fallback texte pour la vidéo YouTube (iframes ne s'impriment pas) */
+  .video-print-fallback { display: block !important; font-size: 10pt; color: #000; }
+
+  /* Forcer le noir sur les éléments colorés dynamiques */
+  .highlight-pct, .text-warning, [style*="color"] { color: #000 !important; }
+}
