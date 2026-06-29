@@ -3,3 +3,6 @@
 
 # Documentation interne — hors scope repo public
 TECHNIQUE.md
+
+# Rapports Lighthouse — générés localement, ne pas versionner
+lighthouse/
