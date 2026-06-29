@@ -49,16 +49,11 @@
   <!-- Reset minimaliste — bloquant volontaire : tiny (450B), inliné en pratique par le réseau -->
   <link href="css/reset.css" rel="stylesheet">
 
-  <!-- Bootstrap 5.3.3 + style.css : préchargés via rel=preload, appliqués par onload
-       → le navigateur télécharge le CSS en parallèle sans bloquer le premier rendu (FCP)
-       → onload="this.onload=null;this.rel='stylesheet'" : bascule rel dès que le fichier est prêt
-       → <noscript> : fallback si JS est désactivé (comportement bloquant classique) -->
-  <link rel="preload" href="css/bootstrap.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
-  <link rel="preload" href="css/style.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
-  <noscript>
-    <link rel="stylesheet" href="css/bootstrap.min.css">
-    <link rel="stylesheet" href="css/style.css">
-  </noscript>
+  <!-- Bootstrap 5.3.3 + style.css : chargement bloquant classique
+       → élimine le CLS causé par le rendu sans styles (preload+onload provoquait un layout shift de 0.803)
+       → le FCP est légèrement plus lent mais le score global Lighthouse est bien meilleur -->
+  <link rel="stylesheet" href="css/bootstrap.min.css">
+  <link rel="stylesheet" href="css/style.css">
 
   <!-- Styles impression — masque la gamification, affiche le contenu utile -->
   <link href="css/print.css" rel="stylesheet" media="print">
